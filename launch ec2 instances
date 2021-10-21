@@ -43,11 +43,13 @@ sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.rel
 sudo apt install terraform or
 sudo apt install terraform=0.14.0
 sudo nano filename.tf
-esource "aws_instance" "testinstance" {
+resource "aws_instance" "testinstance" {
 
 ami = "ami-03ab7423a204da002"
 
 instance_type = "t2.micro"
+
+count=1
 
 subnet_id = "subnet-0851029b250b89110"
 
@@ -218,4 +220,70 @@ save and exit
 sudo terraform init (for initiating terraform)
 sudo terraform plan
 terraform apply
+
+
+Launch ec2 instance using go language:
+Download golang using---
+wget https://golang.org/dl/go1.17.2.linux-amd64.tar.gz
+Extract the archive you downloaded into /usr/local, creating a Go tree in /usr/local/go.
+sudo rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.2.linux-amd64.tar.gz
+Add /usr/local/go/bin to the PATH environment variable.
+export PATH=$PATH:/usr/local/go/bin
+Verify that you have installed go or not by using command:
+go version
+
+Now create a file file.go and add below code to run ec2 instances.
+
+package main
+
+import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ec2"
+
+	"fmt"
+	"log"
+)
+
+func main() {
+    sess, err := session.NewSession(&aws.Config{
+        Region: aws.String("ap-south-1")},
+    )
+
+    // Create EC2 service client
+    svc := ec2.New(sess)
+
+    // Specify the details of the instance that you want to create.
+    runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
+        // An Amazon Linux AMI ID for t2.micro instances in the us-west-2 region
+        ImageId:      aws.String("ami-041d6256ed0f2061c"),
+        InstanceType: aws.String("t2.micro"),
+        MinCount:     aws.Int64(1),
+        MaxCount:     aws.Int64(1),
+    })
+
+    if err != nil {
+        fmt.Println("Could not create instance", err)
+        return
+    }
+
+    fmt.Println("Created instance", *runResult.Instances[0].InstanceId)
+
+    // Add tags to the created instance
+    _, errtag := svc.CreateTags(&ec2.CreateTagsInput{
+        Resources: []*string{runResult.Instances[0].InstanceId},
+        Tags: []*ec2.Tag{
+            {
+                Key:   aws.String("Name"),
+                Value: aws.String("MyFirstInstance"),
+            },
+        },
+    })
+    if errtag != nil {
+        log.Println("Could not create tags for instance", runResult.Instances[0].InstanceId, errtag)
+        return
+    }
+
+    fmt.Println("Successfully tagged instance")
+}
 
