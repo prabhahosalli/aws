@@ -38,7 +38,7 @@ again increasing 20 to 30gb for that open above file just replace 20 to 30 save 
 
 CREATE VOLUME
  resource "aws_ebs_volume" "my_vol" {
-availability_zone = "s-west-1c"
+availability_zone = "us-west-1c"
 size = 30
 }
 save and run
@@ -63,7 +63,7 @@ sudo mkfs.xfs /dev/xvdf1
 lsblk -f --->copy the uuid number
 sudo vi /etc/fstab  --->paste that copied number and specify themount point
 (LABEL=cloudimg-rootfs   /ext4   defaults,discard0 1
-UUID= cc8c0529-f6e8-418a-9e41-7d9b62a0ae09 /newvolume-->(mount point) xfs     defaults,discard0 1)
+UUID= cc8c0529-f6e8-418a-9e41-7d9b62a0ae09 /newvolume-->(mount point) xfs     defaults,discard  0 1)
 sudo mount -a(we r in / then do sodu mount -a)
 lsblk
 sudo reboot
