@@ -1,0 +1,78 @@
+launch ec2 instance with 20gb ssd volume and once it launched increase the volume 20gb to 30gb AND attach one more 30gb volume (create a new volume in aws console and attach) do this task manually from aws console and repeat the same task in terraform
+df -h -> command to check the volumes once the volume attached then reboot the instance and check the volumes again 
+
+ref : https://www.fizerkhan.com/blog/posts/resize-ebs-volume-without-rebooting-in-aws
+
+ANS: IN terraform
+Launching instance with 20gb volume
+nano prabha.tf
+                                                                         
+resource "aws_instance" "testinstance" {
+
+ami = "ami-0d382e80be7ffdae5"
+
+instance_type = "t2.micro"
+
+count=1
+
+subnet_id = "subnet-03aec930e1b3bd271"
+
+associate_public_ip_address = "false"
+
+vpc_security_group_ids = [ "sg-0ea9617a800fa3554" ]
+
+key_name="prabha"
+
+root_block_device {
+
+volume_type = "gp2"
+
+volume_size = "20"
+
+delete_on_termination ="true"
+}
+}
+save and exit
+again increasing 20 to 30gb for that open above file just replace 20 to 30 save and run.
+
+
+CREATE VOLUME
+ resource "aws_ebs_volume" "my_vol" {
+availability_zone = "s-west-1c"
+size = 30
+}
+save and run
+
+ATTACH VOLUME TO EXISTING INSTANCE/ ABOVE CRETED INSTANCE
+resource "aws_volume_attachment" "ebs_att" {
+device_name = "/dev/sdh"
+volume_id = "vol-04215a6e637b12968"
+instance_id = "i-097d6cc8f526d59fe"
+}
+save and run
+
+
+https://www.fizerkhan.com/blog/posts/resize-ebs-volume-without-rebooting-in-aws
+
+df -h
+lsblk
+partitioning disk
+sudo fdisk /dev/xvdf
+make filesystem for the new mount
+sudo mkfs.xfs /dev/xvdf1 
+lsblk -f --->copy the uuid number
+sudo vi /etc/fstab  --->paste that copied number and specify themount point
+(LABEL=cloudimg-rootfs   /ext4   defaults,discard0 1
+UUID= cc8c0529-f6e8-418a-9e41-7d9b62a0ae09 /newvolume-->(mount point) xfs     defaults,discard0 1)
+sudo mount -a(we r in / then do sodu mount -a)
+lsblk
+sudo reboot
+lsblk
+
+
+
+
+
+
+
+
