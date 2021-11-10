@@ -1,0 +1,117 @@
+To install jenkins in ubuntu
+---------------------
+
+write a shell script to install jenkins 
+----------------------------------------
+eg: vi shanth.sh
+----------------
+sudo apt update -> this is used to run for first instance 
+sudo apt install openjdk-8-jdk
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt update
+sudo apt install jenkins
+systemctl status jenkins
+
+
+Execute the shell script
+-------------------------
+sudo bash filename.sh
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+To install jenkins in docker 
+----------------------------
+
+we need to create a dockerfile
+------------------------------
+eg: vi dockerfile
+-----------------
+FROM ubuntu
+COPY . /app  -> [NOTE:   .(dot) represent present directory   /app -> it points docker package]
+CMD shell /app/filename.sh
+:wq -> write and quit the file
+
+
+TO Build a docker file
+-----------------------
+Commands
+--------
+sudo docker build .
+
+
+To check whether the package or image is installed or not
+----------------------------------------------------------
+commands:
+---------
+sudo docker images
+
+
+TO check whether the service or container is running or not
+------------------------------------------------------------
+commands:
+---------
+sudo docker ps -a
+
+
+If jenkins is not running then use this command to run the jenkins
+-------------------------------------------------------------------
+commands:
+---------
+sudo docker run -p 8080:8080 -d jenkins/jenkins 
+
+[Note] Issue comes like this { already port in use }
+Then we need stop jenkins in ubuntu then port will release then we can use the same command to run the jenkins
+command to stop jenkins in ubuntu
+----------------------------------
+sudo systemctl stop jenkins
+ 
+
+
+
+
+
+
+
+Task: Create CICD pipeline with github and deploy tomcat application
+
+Github:
+
+Create Reposirory
+******************
+Configure SSH key in github: 
+In .ssh folder copy id_rsa.pub key and paste SSH and GPG keys to generate a new ssh key. -> In github
+Gitclone: git clone (repository ssh url)
+Modify the changes in the file and add to the repository
+
+git commands to push the code to ur repository
+***********************************************
+git add ./
+git commit -m "content"
+git push
+ 
+
+Jenkin:
+*******
+Create new project.
+Select GITHUB project: under project url : paste github url
+
+Soruce Code Mngt:
+Select GIT:
+Under Repository URL: give repository url
+
+Under build:
+************
+Execute shell:
+Commands: 
+pwd
+cp index.html /var/lib/tomcat9/webapps/ROOT
+Apply and save. -> to save the project
+
+
+Instance or Local ubuntu 
+************************
+use the write permission on the directory
+chmod -R 777 /var/lib/tomcat9
+
+Change the file in github and jenkins will automatically copy the index.html which was built by jenkins and it moved to the ROOT folder

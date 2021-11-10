@@ -1,0 +1,74 @@
+git status -> to see the changes 
+git checkout -b (branch Name) -> to create the branch
+git add -A -> to commit all changes
+git commit -m "message" -> to pass message
+git branch -> to check the branch
+git push -> to the master
+
+
+
+
+PUll Request -> it used for merge between two branches
+Issue -> hold the issue in the file in branches
+code -> it displayes list of files in branch
+
+yum install git -> install git
+which git -> it is used to check the installation whether it is installed or not
+
+git clone https://github.com/vishwab06/test1.git
+git status -> tell the branch and branch details
+git branch -> git branch indicate the branch alone
+git add -A -> used to add the modified files in git
+git commit -m "leave your comment \ purpose of editing the files"
+
+Create a New branch from Main
+------------------------------
+git btanch ->  check the branch
+git checkout -b "new branch name" 
+git checkout "branchname"
+
+
+
+
+
+322  cd /var/lib/tomcat9/webapps/
+  323  ls
+  324  sudo rm -rf ROOT1
+  325  ls
+  326  sudo mv ROOT ROOTS
+  327  ls
+  328  sudo git clone https://github.com/Mohamed-Rifaz/ROOT.git
+  329  cd ROOT
+  330  ls
+  331  cd ..
+  332  cd ROOTS
+  333  ls
+  334  sudo mv index.html ../ROOT
+  335  ls
+  336  ls ../ROOT
+  337  sudo mv META-INF/ ../ROOT
+  338  ls
+  339  ls ../
+  340  ls ../ROOT
+  341  cd ..
+  342  ls
+  343  cd ROOT
+  344  ls
+  345  git status
+  346  git add *
+  347  sudo git add *
+  348  sudo 
+49  sudo git commit
+  350  sudo git commit -m
+  351  sudo git commit -m "Rifaz"
+  352  git config --global user.email "rifazjafferdeen@gmail.com"
+  353  git config --global user.name "Mohamed-Rifaz"
+  354  sudo git commit
+  355  sudo git push
+  356  ls
+  357  sudo vi index.html 
+  358  sudo git status 
+  359  sudo git add *
+  360  sudo git commit 
+  361  sudo git commit -m "Rifaz"
+  362  sudo git push
