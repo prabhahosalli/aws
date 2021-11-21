@@ -69,6 +69,312 @@ terraform apply
 
 launching s3 bucket using terraform
 (we already installed terrafom)
+
+
+
+launching instance using awscli
+sudo apt install awscli
+aws configure, in that we have to give access and secrete key's, region,default output(json) of aws account
+aws ec2 run-instances --image-id ami-03ab7423a204da002 --count 1 --instance-type t2.micro  --security-group-ids sg-08ddc973cbcfcd596 --subnet-id subnet-0851029b250b89110
+
+
+launching instance using bash
+sudo apt-get install bash
+bash --version
+creating file with .sh extension and paste the script in that file save and axit, for ruuning that file use command below,
+sudo vi/nano prabha.sh
+aws ec2 run-instances --image-id ami-03ab7423a204da002 --count 1 --instance-type t2.micro  --security-group-ids sg-08ddc973cbcfcd596 --subnet-id subnet-0851029b250b89110
+bash prabha.sh(for running) after this instance will created check in console...
+
+
+
+launching instance using python
+sudo apt-get install python -y
+install boto3 package for this we have to download pip
+sudo wget https://bootstrap.pypa.io/get-pip.py
+ll
+sudo python get-pip.py
+pip install boto3
+pip show boto3
+python --version
+pip3 install --upgrade awscli
+sudo vi/nano prabha.py
+import boto3
+ec2 = boto3.resource('ec2')
+# create a new EC2 instance
+instances = ec2.create_instances(
+     ImageId='ami-03ab7423a204da002',
+     MinCount=1,
+     MaxCount=1,
+     InstanceType='t2.micro'
+)
+for run above command= python3 prabha.py
+
+
+launching instance using terraform
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt install terraform or
+sudo apt install terraform=0.14.0
+sudo nano filename.tf
+resource "aws_instance" "testinstance" {
+
+ami = "ami-03ab7423a204da002"
+
+instance_type = "t2.micro"
+
+count=1
+
+subnet_id = "subnet-0851029b250b89110"
+
+associate_public_ip_address = "false"
+
+vpc_security_group_ids = [ "sg-08ddc973cbcfcd596" ]
+
+key_name="prabha"
+
+}
+
+sudo terraform init (for initiating terraform)
+sudo terraform plan
+terraform apply
+
+
+
+launching s3 bucket using terraform
+(we already installed terrafom)
+
+resource "aws_s3_bucket" "code" {
+  bucket        = "bucket399"
+  acl           = "private"
+  #force_destroy = true
+
+  tags ={
+    Name = "code bucket"
+  }
+}
+
+
+
+
+sudo nano filename.tf
+resource "aws_s3_bucket" "morebucket" {
+   bucket = "bucket399"
+   acl = "private"
+   versioning {
+      enabled = false
+   }
+   tags = {
+     Name = "bucket19-10-21"
+     Environment = "Test"
+   }
+}
+
+save and exit
+sudo terraform init (for initiating terraform)
+sudo terraform plan
+terraform apply
+
+
+
+launch ec2 instance with loadbalancer using terraform
+(we already installed terraform)
+for this we have to create 3 files with .tf extension
+sudo nano variable.tf
+variable "vpc_id" {}
+
+variable "instance1_id" {}
+
+//variable "instance2_id" {}*/
+
+variable "subnet1" {}
+
+variable "subnet2" {}
+
+save and exit
+
+
+sudo nano outputs.tf
+output "alb_dns_name" {
+  value = "${aws_lb.my-aws-alb.dns_name}"
+}
+
+output "alb_target_group_arn" {
+  value = "${aws_lb_target_group.my-target-group.arn}"
+}
+
+
+save and exit
+
+sudo nano main.tf
+provider "aws" {
+          region = "us-west-1"
+        }
+
+        resource "aws_lb_target_group" "my-target-group" {
+          health_check {
+            interval            = 10
+            path                = "/"
+            protocol            = "HTTP"
+            timeout             = 5
+            healthy_threshold   = 5
+            unhealthy_threshold = 2
+          }
+
+          name        = "my-test-tg"
+          port        = 80
+          protocol    = "HTTP"
+          target_type = "instance"
+          vpc_id      = "${var.vpc_id}"
+        }
+
+        resource "aws_lb_target_group_attachment" "my-alb-target-group-attachment1" {
+          target_group_arn = "${aws_lb_target_group.my-target-group.arn}"
+          target_id        = "${var.instance1_id}"
+          port             = 80
+        }
+
+        /*resource "aws_lb_target_group_attachment" "my-alb-target-group-attachment2" {
+          target_group_arn = "${aws_lb_target_group.my-target-group.arn}"
+          target_id        = "${var.instance2_id}"
+          port             = 80
+        }*/
+
+        resource "aws_lb" "my-aws-alb" {
+          name     = "my-test-alb"
+          internal = false
+
+          security_groups = [
+            "${aws_security_group.my-alb-sg.id}",
+          ]
+
+          subnets = [
+            "${var.subnet1}",
+            "${var.subnet2}",
+          ]
+
+          tags = {
+            Name = "my-test-alb"
+          }
+
+          ip_address_type    = "ipv4"
+          load_balancer_type = "application"
+        }
+
+        resource "aws_lb_listener" "my-test-alb-listner" {
+          load_balancer_arn = "${aws_lb.my-aws-alb.arn}"
+          port              = 80
+          protocol          = "HTTP"
+
+          default_action {
+            type             = "forward"
+            target_group_arn = "${aws_lb_target_group.my-target-group.arn}"
+          }
+        }
+
+        resource "aws_security_group" "my-alb-sg" {
+          name   = "my-alb-sg"
+          vpc_id = "${var.vpc_id}"
+        }
+
+        resource "aws_security_group_rule" "inbound_ssh" {
+          from_port         = 22
+          protocol          = "tcp"
+          security_group_id = "${aws_security_group.my-alb-sg.id}"
+          to_port           = 22
+          type              = "ingress"
+          cidr_blocks       = ["0.0.0.0/0"]
+        }
+
+        resource "aws_security_group_rule" "inbound_http" {
+          from_port         = 80
+          protocol          = "tcp"
+          security_group_id = "${aws_security_group.my-alb-sg.id}"
+          to_port           = 80
+          type              = "ingress"
+          cidr_blocks       = ["0.0.0.0/0"]
+        }
+
+        resource "aws_security_group_rule" "outbound_all" {
+          from_port         = 0
+          protocol          = "-1"
+          security_group_id = "${aws_security_group.my-alb-sg.id}"
+          to_port           = 0
+          type              = "egress"
+          cidr_blocks       = ["0.0.0.0/0"]
+        }
+
+save and exit
+sudo terraform init (for initiating terraform)
+sudo terraform plan
+terraform apply
+
+
+Launch ec2 instance using go language:
+Download golang using---
+wget https://golang.org/dl/go1.17.2.linux-amd64.tar.gz
+Extract the archive you downloaded into /usr/local, creating a Go tree in /usr/local/go.
+sudo rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.2.linux-amd64.tar.gz
+Add /usr/local/go/bin to the PATH environment variable.
+export PATH=$PATH:/usr/local/go/bin
+Verify that you have installed go or not by using command:
+go version
+
+Now create a file file.go and add below code to run ec2 instances.
+
+package main
+
+import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ec2"
+
+	"fmt"
+	"log"
+)
+
+func main() {
+    sess, err := session.NewSession(&aws.Config{
+        Region: aws.String("ap-south-1")},
+    )
+
+    // Create EC2 service client
+    svc := ec2.New(sess)
+
+    // Specify the details of the instance that you want to create.
+    runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
+        // An Amazon Linux AMI ID for t2.micro instances in the us-west-2 region
+        ImageId:      aws.String("ami-041d6256ed0f2061c"),
+        InstanceType: aws.String("t2.micro"),
+        MinCount:     aws.Int64(1),
+        MaxCount:     aws.Int64(1),
+    })
+
+    if err != nil {
+        fmt.Println("Could not create instance", err)
+        return
+    }
+
+    fmt.Println("Created instance", *runResult.Instances[0].InstanceId)
+
+    // Add tags to the created instance
+    _, errtag := svc.CreateTags(&ec2.CreateTagsInput{
+        Resources: []*string{runResult.Instances[0].InstanceId},
+        Tags: []*ec2.Tag{
+            {
+                Key:   aws.String("Name"),
+                Value: aws.String("MyFirstInstance"),
+            },
+        },
+    })
+    if errtag != nil {
+        log.Println("Could not create tags for instance", runResult.Instances[0].InstanceId, errtag)
+        return
+    }
+
+    fmt.Println("Successfully tagged instance")
+}
+
 sudo nano filename.tf
 resource "aws_s3_bucket" "morebucket" {
    bucket = "bucket399"
