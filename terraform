@@ -104,4 +104,32 @@ RUN apt-get install git -y
 
 
 
+installing jenkins along with ec2 instance using terraform code
+
+esource "aws_instance" "web" {
+  ami= "ami-01f87c43e618bf8f0"
+  instance_type = "t3.micro"
+
+  user_data = <<-EOL
+  #!/bin/bash -xe
+
+  apt update
+  apt install openjdk-8-jdk --yes
+  wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+  echo "deb https://pkg.jenkins.io/debian binary/" >> /etc/apt/sources.list
+  apt update
+  apt install -y jenkins
+  systemctl status jenkins
+  find /usr/lib/jvm/java-1.8* | head -n 3
+  EOL
+
+  tags = {
+    Name = "HelloWorld"
+  }
+}
+
+
+
+
+
 
