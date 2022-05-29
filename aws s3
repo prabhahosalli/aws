@@ -1,0 +1,15 @@
+create bueket upload files propertis enable staric web hosting 
+permissions-generate policy,     select s3 bueleet specification,         principle [to whom we giving permissions like users]
+select actions [whatare the permissions we are giving to the above mention users],       
+resources[bueket arn along with\* however we can able to see the objects]
+add condition and generate policy copy policy
+paste in bueket policy under permissions and makesure uncheck block public access copy objecturl paste in browser along with\objeetname 
+then we are able to object in  inpermissions
+
+
+
+
+
+user aceess
+create policy[what are the permissions weare giving to user give bueketname &objectname create group attach policy 
+create usen attach the group login with iam user
