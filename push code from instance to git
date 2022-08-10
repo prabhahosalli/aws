@@ -1,0 +1,39 @@
+VPC Peering : Connecting vpcs with in same aws account and different aws accounts.
+Scenario-1:
+----------
+VPC Peering in same aws account:
+
+Create two VPCs.
+launch two ec2 instances one in public subnet and one in private subnet.
+
+create VPC Peering:
+Give VPC1 id, select my account and region 
+add vpc2 to peer with vpc1.
+
+Accept peering connection.
+
+In VPC1 public Route table we need to add VPC2 private instance private ip CIDR block.
+In VPC2 private route table we need to add VPC1 public instance private ip CIDR block.
+
+Connect to public instance in VPC1
+Copy pem file for private instance in VPC2
+
+SSH to private instance(VPC2)
+
+Scenario-2:
+----------
+create two VPCs in different AWS accounts
+
+launch two instances in two different AWS acconts
+
+Create VPC peering connection for differnet aws accounts
+
+
+
+In VPC(account1) public Route table we need to add VPC(account2) private instance private ip CIDR block.
+In VPC(account2) private route table we need to add VPC(account1) public instance private ip CIDR block.
+
+connect to public instance in account1
+Copy pem file for private instance in VPC(account2)
+
+SSH to private instance(VPC(account2))
