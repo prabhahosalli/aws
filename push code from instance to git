@@ -1,39 +1,89 @@
-VPC Peering : Connecting vpcs with in same aws account and different aws accounts.
-Scenario-1:
-----------
-VPC Peering in same aws account:
+push main.tf and variable.tf to your github
 
-Create two VPCs.
-launch two ec2 instances one in public subnet and one in private subnet.
+yum update -y
+yum install awscli
+aws configure
+wget terraform link
+terraform --version
+vi variable.tf
 
-create VPC Peering:
-Give VPC1 id, select my account and region 
-add vpc2 to peer with vpc1.
+variable "aws_region" {
+  description = "The AWS region to create things in."
+  default     = "us-west-1"
+}
 
-Accept peering connection.
+variable "key_name" {
+  description = " SSH keys to connect to ec2 instance"
+  default     =  "ec2"
+}
 
-In VPC1 public Route table we need to add VPC2 private instance private ip CIDR block.
-In VPC2 private route table we need to add VPC1 public instance private ip CIDR block.
-
-Connect to public instance in VPC1
-Copy pem file for private instance in VPC2
-
-SSH to private instance(VPC2)
-
-Scenario-2:
-----------
-create two VPCs in different AWS accounts
-
-launch two instances in two different AWS acconts
-
-Create VPC peering connection for differnet aws accounts
+variable "instance_type" {
+  description = "instance type for ec2"
+  default     =  "t2.micro"
+}
 
 
 
-In VPC(account1) public Route table we need to add VPC(account2) private instance private ip CIDR block.
-In VPC(account2) private route table we need to add VPC(account1) public instance private ip CIDR block.
+vi main.tf
+provider "aws" {
+  region = var.aws_region
+}
 
-connect to public instance in account1
-Copy pem file for private instance in VPC(account2)
 
-SSH to private instance(VPC(account2))
+#Create security group with firewall rules
+resource "aws_security_group" "security_jenkins_port" {
+  name        = "security_jenkins_port"
+  description = "security group for jenkins"
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ # outbound from jenkis server
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags= {
+    Name = "security_jenkins_port"
+  }
+}
+
+resource "aws_instance" "myFirstInstance" {
+  ami           = "ami-0e4d9ed95865f3b40"
+  key_name = var.key_name
+  instance_type = var.instance_type
+  security_groups= [ "security_jenkins_port"]
+  tags= {
+    Name = "jenkins_instance"
+  }
+}
+
+terraform init
+terraform plan
+terraform apply
+
+terraform state list
+
+yum install git
+git init  (it will create local git repo)
+ssh-keygen
+sudo cat ~/.ssh/id_rsa.pub--->copy and paste in github(settings on avathara click on ssh and gpg key, add ssh key paste it here)
+
+git add *.tf
+git commit -m "added terraform files"
+git pull origin master --rebase
+ git push -u origin master
