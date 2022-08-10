@@ -1,3 +1,24 @@
+CREATE VPC,ATTACH TO 2 INSTANCE(PRI, PUB) AND CHECK IT WHICH ONE IS WORKING
+
+create one vpc tenancy should be default(10.0.0.0/16)
+create internet gateway attach it to vpc
+create 2 subnet (pri--10.0.1.0/24, pub--10.0.2.0/24)
+create 2 routetable private and public
+select public rt under route edit with add route and select your internet gateway save changes 
+edit subnet association select public subnet save it
+select private here only edit private subnet save it
+edit securituy group with same vpc and give inbound rules save it.
+
+create 2 instance attach vpc and and select subnet respectively and attach security group which is attached to your vpc.
+copy public ip 
+CMD--> ping public ip
+check for both instance one should be 0%loss  another should be timed out(private instance with private subnet)
+
+
+
+
+VPC PEERING
+
 VPC Peering : Connecting vpcs with in same aws account and different aws accounts.
 Scenario-1:
 ----------
