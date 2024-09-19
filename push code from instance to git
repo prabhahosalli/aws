@@ -86,4 +86,4 @@ sudo cat ~/.ssh/id_rsa.pub--->copy and paste in github(settings on avathara clic
 git add *.tf
 git commit -m "added terraform files"
 git pull origin master --rebase
- git push -u origin master...
+ git push -u origin master..... ..
