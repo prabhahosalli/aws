@@ -3,7 +3,7 @@ git checkout -b (branch Name) -> to create the branch
 git add -A -> to commit all changes
 git commit -m "message" -> to pass message
 git branch -> to check the branch
-git push -> to the master
+git push -> to the master.
 
 
 
