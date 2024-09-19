@@ -25,7 +25,7 @@ Create a New branch from Main
 ------------------------------
 git btanch ->  check the branch
 git checkout -b "new branch name" 
-git checkout "branchname"
+git checkout "branchname"         to change the branch
 
 
 
